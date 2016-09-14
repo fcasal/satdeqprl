@@ -1,0 +1,40 @@
+fmod SIMPLE-NAT is
+  sort Constant .
+  op zero : -> Constant .
+  op s : Constant -> Constant .
+  op + : Constant Constant -> Constant .
+  vars N M : Constant .
+  eq +(zero, N) = N .
+  eq +(s(N) , M) = +(N,s(M)) .
+  eq s(s(N)) = N .
+endfm
+
+fmod NEW-TERM is protecting META-LEVEL .
+  op terms : TermList -> TermList .
+  eq terms(empty) = empty .
+  eq terms(C:Constant) = C:Constant .
+  eq terms(D:Variable) = empty .
+  op + : Term Term -> Term .
+  op s : Term -> Term .
+  op in : Term Term -> Term 
+  op equat : Term Term -> Term .
+  op sepa : -> Qid .
+  op zero : -> Constant .
+  eq terms(s(TL:Term)) = s(TL:Term),sepa, terms(TL:Term) .
+  eq terms(+(TL:Term, T:Term)) = +(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(equat(TL:Term , T:Term)) = terms((TL:Term, T:Term)) .
+  eq terms(in(TL:Term , T:Term)) = terms((TL:Term, T:Term)) .
+  eq terms(Q:Qid[TL:TermList]) = terms(TL:TermList) .
+  eq terms((T:Term, TL:TermList)) = terms(T:Term),sepa, terms(TL:TermList) .
+endfm
+
+--- red   terms(s(s(zero:Constant))) .
+
+----red   terms((s(+(s(zero) ,  zero)) = n:Constant, s(f:Constant))) .
+
+----red in SIMPLE-NAT : s(+(s(zero), n:Constant)) .
+
+red terms('and['leq[ 'Pr[ equat(n:Constant , zero) ], 'Pr[ in( n:Constant, d:Variable )]  ],
+               'Forall[ in( n:Constant, D:Variable)],
+               'not[ 'leq[ 'Pr[ equat( n:Constant , zero)], 2:Variable]]
+                ]) .
