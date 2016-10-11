@@ -5,7 +5,8 @@ import re, copy, sys
 from  propositionalmodule import *
 from shutil import copyfile
 
-
+# Bibliography
+# [1] A. Mordido. A probabilistic logic over equations and domain restrictions. PhD thesis, IST, Universidade de Lisboa.
 
 # # SIMPLE-NAT
 # filenamemaude = "working.maude"
@@ -16,53 +17,57 @@ from shutil import copyfile
 # domrestricimpl = [[[],[['zero', 'even', 1, []]]],[[['N','even',1,'N']],[['s(N)','odd',1,'N']]],[[['N','odd',1,'N']],[['s(N)','even',1,'N']]],[[['N','odd',1,'N']],[['N','even',0,'N']]]]
 
 
-# #EXEMPLO 1 - UNSATISFIABLE
+# #EXAMPLE 0 - UNSAT
 # Psi = ["""'Forall[{c:Constant@even}]""","""'Forall[or({c:Constant=zero} , {d:Constant=s(+(zero,d:Constant))})]"""]
 # Sigma = ["""'not['Forall[{s(c:Constant)@odd}]]"""]
 # Pi = ["""ge[(1)Pr[{c:Constant=zero}]+(-0.3)Pr[imp({zero=zero}{zero@even})],0.66]"""]
 
+# #EXAMPLE 1 (Example 4.4.1 of [1]) - UNSAT
+# Psi = ["""'Forall[{c:Constant@even}]"""]
+# Sigma = ["""'not['Forall[{s(c:Constant)@odd}]]"""]
+# Pi = ["""le[(1)Pr[{c:Constant=zero}]+(-0.6666)Pr[{c:Constant@even}],0]"""]
 
-# EXEMPLO 2 - UNSAT =)
+# EXAMPLE 2 (Example 4.4.1 of [1]) - UNSAT
 # Psi = ["""'Forall[{c:Constant@even}]"""]
 # Sigma = []
 # Pi = ["""le[(1)Pr[{c:Constant=zero}]+(-0.6666)Pr[{c:Constant@even}],0]""", """sg[(1)Pr[{c:Constant=zero}],0.6666]"""]
 
-# # EXEMPLO dfkgjsd - SAT ?? =)
+# # EXAMPLE - SAT
 # Psi = ["""'Forall[{c:Constant@even}]"""]
 # Sigma = []
 # Pi = ["""le[(1)Pr[{c:Constant=zero}]+(-0.25)Pr[{c:Constant@even}],0]""", """ge[(1)Pr[{c:Constant=zero}],0.25]"""]
 
 
 # DOLEV - YAO symmetric
-# filenamemaude = "workingdolev.maude"
-# rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']], ['equat(proj1(pair(X,Y)), X)', ['X', 'Y']], ['equat(proj2(pair(X,Y)), Y)', ['X', 'Y']]]
-# signature = [[1, 'proj1'],[1, 'proj2'], [2, 'enc'],[2, 'dec']]
-# domains = ['symkey', 'plain','conc', 'cipher']
-# domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
-# 				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
-# 				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
-# 				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]],
-# 				  [[['X','conc',1,['X']]],[['proj1(X)', 'plain', 1, ['X']]]],
-# 				  [[['X','conc',1,['X']]],[['proj2(X)', 'plain', 1, ['X']]]]]
+filenamemaude = "workingdolev.maude"
+rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']], ['equat(proj1(pair(X,Y)), X)', ['X', 'Y']], ['equat(proj2(pair(X,Y)), Y)', ['X', 'Y']]]
+signature = [[1, 'proj1'],[1, 'proj2'], [2, 'enc'],[2, 'dec']]
+domains = ['symkey', 'plain','conc', 'cipher']
+domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
+				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
+				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
+				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]],
+				  [[['X','conc',1,['X']]],[['proj1(X)', 'plain', 1, ['X']]]],
+				  [[['X','conc',1,['X']]],[['proj2(X)', 'plain', 1, ['X']]]]]
 
-# EXEMPLO 3 - UNSAT =)
-# Psi = ["""'Forall[{k1:Constant@symkey}]"""]
-# Sigma = []
-# Pi = ["""eq[(1)Pr[{k:Constant=k1:Constant}]+(-0.4)Pr[{k1:Constant@symkey}],0]""", """sl[(1)Pr[{dec(enc(m:Constant,k:Constant),k1:Constant)=m:Constant}],0.3]"""]
+# EXAMPLE 3 (Example 4.2.2 of [1]) - UNSAT
+Psi = ["""'Forall[{k1:Constant@symkey}]"""]
+Sigma = []
+Pi = ["""eq[(1)Pr[{k:Constant=k1:Constant}]+(-0.4)Pr[{k1:Constant@symkey}],0]""", """sl[(1)Pr[{dec(enc(m:Constant,k:Constant),k1:Constant)=m:Constant}],0.4]"""]
 # #
 
-# # # EXEMPLO 4 -  UNSAT =)
+# # # EXAMPLE 4 (Example 2.5.2 of [1]) -  UNSAT
 # Psi = ["""'Forall[and({k:Constant@symkey},{m:Constant@plain})]"""]
-# Sigma = ["""'not['Forall[imp(not({dec(enc(m:Constant,k:Constant),k1:Constant)@plain}), not({k:Constant=k1:Constant}) )]]"""] 
+# Sigma = ["""'not['Forall[imp(not({dec(enc(m:Constant,k:Constant),k1:Constant)@plain}), not({k:Constant=k1:Constant}) )]]"""]
 # Pi = []
 
-# EXEMPLO 5 -  SAT =)
+# EXAMPLE 5 (Example 2.5.2 of [1]) -  SAT
 # Psi = ["""'Forall[and({m1:Constant=pair(a:Constant,n:Constant)},{m2:Constant=enc(n:Constant,k1:Constant)})]"""]
 # Sigma = ["""'not['Forall[{dec(m2:Constant,k:Constant)=proj2(m1:Constant)}]]"""]
 # Pi = []
 
-# EXEMPLO 6 -  UNSAT =)!!! 571seconds user 19:27 total // now   203.80s user   4:17.77 total
-# print("EXEMPLO 6 - UNSAT")
+# EXAMPLE 6  (Example 2.5.2 of [1]) -  UNSAT !!! 571seconds user 19:27 total // now   203.80s user   4:17.77 total
+# print("EXAMPLE 6 - UNSAT")
 # Psi = ["""'Forall[and({m1:Constant=pair(a:Constant,n:Constant)},{m2:Constant=enc(n:Constant,k1:Constant)})]"""]
 # Sigma = ["""'not['Forall[imp({k:Constant=k1:Constant},{dec(m2:Constant,k:Constant)=proj2(m1:Constant)})]]"""]
 # Pi = []
@@ -83,22 +88,22 @@ from shutil import copyfile
 # 				  [[['K','pubkey',1,['K']],['X','plain',1,['X']]],[['aenc(X,K)', 'cipher', 1, ['X','K']]]],
 # 				  [[['K','prvkey',1,['K']],['X','cipher',1,['X']]],[['adec(X,K)', 'plain', 1, ['X','K']]]]]
 
-# print(" # # EXEMPLO 7 - UNSAT")
+# print(" # # EXAMPLE 7 - UNSAT")
 # # # 4 disjuncts to test satisfiability - if some of them returns SAT, the problem is satisfiable
 # # # expectations: UNSAT (each of them should return UNSAT)
 # # # 1st disjunct UNSAT !
-filenamemaude = "workingdolevasym.maude"
-rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']],['equat(adec(aenc(X,pub(K)),prv(K)), X)', ['X','K']]]
-signature = [[1, 'pub'],[1, 'prv'], [2, 'enc'],[2, 'dec'],[2, 'aenc'],[2, 'adec']]
-domains = ['symkey', 'plain', 'cipher', 'pubkey', 'prvkey', 'conf', 'conc']
-domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
-				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
-				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
-				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]]
-				  ]
-Psi = ["""'Forall[{p1:Constant@symkey}]""","""'Forall[{c1:Constant@conf}]""","""'Forall[and({m1:Constant=aenc(pair(n:Constant,c:Constant),pub(b:Constant))},{m2:Constant=enc(n:Constant,p:Constant)})]"""]
-Sigma = []
-Pi = ["""sg[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})]+(-1)Pr[{aenc(pair(dec(m2:Constant,p1:Constant),c1:Constant),pub(b:Constant))=m1:Constant}],0]""","""eq[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})],0.25]""","""eq[(1)Pr[{c:Constant=c1:Constant}],0.5]""","""eq[(1)Pr[{p:Constant=p1:Constant}],0.5]"""]
+# filenamemaude = "workingdolevasym.maude"
+# rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']],['equat(adec(aenc(X,pub(K)),prv(K)), X)', ['X','K']]]
+# signature = [[1, 'pub'],[1, 'prv'], [2, 'enc'],[2, 'dec'],[2, 'aenc'],[2, 'adec']]
+# domains = ['symkey', 'plain', 'cipher', 'pubkey', 'prvkey', 'conf', 'conc']
+# domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
+# 				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
+# 				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
+# 				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]]
+# 				  ]
+# Psi = ["""'Forall[{p1:Constant@symkey}]""","""'Forall[{c1:Constant@conf}]""","""'Forall[and({m1:Constant=aenc(pair(n:Constant,c:Constant),pub(b:Constant))},{m2:Constant=enc(n:Constant,p:Constant)})]"""]
+# Sigma = []
+# Pi = ["""sg[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})]+(-1)Pr[{aenc(pair(dec(m2:Constant,p1:Constant),c1:Constant),pub(b:Constant))=m1:Constant}],0]""","""eq[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})],0.25]""","""eq[(1)Pr[{c:Constant=c1:Constant}],0.5]""","""eq[(1)Pr[{p:Constant=p1:Constant}],0.5]"""]
 
 
 # #2nd disjunct UNSAT!
@@ -218,7 +223,7 @@ def probabilistic( probabilisticformulas, freshlist ):
 		yicescode += "\n(define "+ kappa[i] +"::real)\n(assert (and (<= "+ kappa[i] +" 1) (>= "+ kappa[i] +" 0)))"
 		for j in range(n+1):
 			yicescode += "\n(define "+ a[i][j] +"::int)\n(assert (or (= "+ a[i][j] +" 1) (= "+ a[i][j] +" 0)))"
-			yicescode += "\n(assert (<=> (= {} 1) {}))".format(a[i][j], freshlist[j][i])		
+			yicescode += "\n(assert (<=> (= {} 1) {}))".format(a[i][j], freshlist[j][i])
 			yicescode += "\n(define "+ b[i][j] +"::real)\n(assert (and (<= "+ b[i][j]+" 1) (>= "+ b[i][j]+ " 0)))"
 		yicescode += "\n(define "+ p[i] +"::real)\n(assert (and (<= "+p[i]+" 1) (>= "+ p[i]+" 0)))"
 	yicescode += "\n(define "+ p[n] +"::real)\n(assert (and (<= "+p[n]+" 1) (>= "+p[n]+" 0)))"
@@ -248,21 +253,21 @@ def probabilistic( probabilisticformulas, freshlist ):
 	for i in range(n):
 		expr = ""
 		for j in range(n+1):
-			expr += " " + b[i][j] 
+			expr += " " + b[i][j]
 			expr1 = b[i][j]
-			yicescode +=  "\n(assert (>= " + expr1 + " 0))"  
-			yicescode += "\n(assert (<= " + expr1 + " " + a[i][j]+ " ))"  
+			yicescode +=  "\n(assert (>= " + expr1 + " 0))"
+			yicescode += "\n(assert (<= " + expr1 + " " + a[i][j]+ " ))"
 
 			expr2 = "(+ "+ a[i][j] +" "+ p[j] +" -1)"
-			yicescode  += "\n(assert (>= " + expr1 + " "+ expr2 +") )" 
-			yicescode += "\n(assert (<= " + expr1 + " "+ p[j] +") )" 
-	
-		yicescode += "\n(assert (= (+ "+ expr +" ) "+ kappa[i]+ " ))" 
-	
+			yicescode  += "\n(assert (>= " + expr1 + " "+ expr2 +") )"
+			yicescode += "\n(assert (<= " + expr1 + " "+ p[j] +") )"
+
+		yicescode += "\n(assert (= (+ "+ expr +" ) "+ kappa[i]+ " ))"
+
 	expr = ""
 	for i in range(n+1):
 		expr  += " " + p[i]
-	yicescode += "\n(assert (= (+ "+ expr + " ) 1))" 
+	yicescode += "\n(assert (= (+ "+ expr + " ) 1))"
 	return yicescode
 
 
@@ -331,7 +336,7 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 	# print(numberoffresh)
 
 	subtermsformula = list(set(subtermsformulapsi + subtermsformulasigma + subtermsformulapi))
-	domretricunion = [el for i in domrestricimpl for ite in range(len(i)) for el in i[ite]] 
+	domretricunion = [el for i in domrestricimpl for ite in range(len(i)) for el in i[ite]]
 
 	instancedomains = instatiatedomainterms( domretricunion, subtermsformula)
 	instancelist = instantiate(rewritesystem, subtermsformula)
@@ -391,12 +396,12 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 		print("im gonna write to file now")
 		print("definevars")
 		f.write( definevariables(relterms, enumrelterms, domains, numbercopies))
-		
+
 		print("reflex")
 		ref = reflex(relterms, atlas, enumrelterms, numbercopies)
 		f.write( assertion(conjulist(ref)))
 		print(len(ref))
-		
+
 		print("symm")
 		sy = symm(relterms, enumrelterms, numbercopies)
 		f.write( assertion(conjulist(sy)) )
@@ -409,7 +414,7 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 		# f.write("".join(map(lambda x: assertion(conjulist(x)), chunky)))
 		for chun in chunky:
 			f.write( assertion(conjulist(chun)) )
-		
+
 		print("congru")
 		congr = congru( relterms, enumrelterms, atlas, signature, numbercopies)
 		f.write( assertion(conjulist(congr)) )
@@ -438,7 +443,7 @@ def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopie
 	with open("prob.txt","a") as f:
 		f.write(asserts)
 		f.write( probabilistic(probabilisticformulas, freshlist))
-		f.write( "\n(check)\n(show-model)")	
+		f.write( "\n(check)\n(show-model)")
 	print("***********\nFIRST STEP\n***********\n")
 	p = Popen(['/usr/local/bin/yices','prob.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 	output, err = p.communicate()
@@ -487,37 +492,3 @@ def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopie
 
 sigmastar, freshlist, probabilisticformulas, asserts, numbercopies = addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, domains, domrestricimpl)
 SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopies)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
