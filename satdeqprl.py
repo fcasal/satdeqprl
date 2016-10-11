@@ -9,13 +9,13 @@ from shutil import copyfile
 # [1] A. Mordido. A probabilistic logic over equations and domain restrictions. PhD thesis, IST, Universidade de Lisboa.
 
 # # SIMPLE-NAT
-# filenamemaude = "working.maude"
-# rewritesystem = [['equat(+(zero, N) , N)', ['N']], ['equat(+(s(N) , M) , +(N,s(M)))', ['N', 'M']], ['equat(s(s(N)) , N)', ['N']]]
-# signature = [[0, 'zero'], [1, 's'], [2, '+']]
-# domains = ['even', 'odd']
-#  # domrestric = [['zero', 'even', 1, []]]
-# domrestricimpl = [[[],[['zero', 'even', 1, []]]],[[['N','even',1,'N']],[['s(N)','odd',1,'N']]],[[['N','odd',1,'N']],[['s(N)','even',1,'N']]],[[['N','odd',1,'N']],[['N','even',0,'N']]]]
-
+filenamemaude = "working.maude"
+rewritesystem = [['equat(+(zero, N) , N)', ['N']], ['equat(+(s(N) , M) , +(N,s(M)))', ['N', 'M']], ['equat(s(s(N)) , N)', ['N']]]
+signature = [[0, 'zero'], [1, 's'], [2, '+']]
+domains = ['even', 'odd']
+domrestricimpl = [[[],[['zero', 'even', 1, []]]],[[['N','even',1,'N']],[['s(N)','odd',1,'N']]],
+					[[['N','odd',1,'N']],[['s(N)','even',1,'N']]],
+					[[['N','odd',1,'N']],[['N','even',0,'N']]]]
 
 # #EXAMPLE 0 - UNSAT
 # Psi = ["""'Forall[{c:Constant@even}]""","""'Forall[or({c:Constant=zero} , {d:Constant=s(+(zero,d:Constant))})]"""]
@@ -23,9 +23,9 @@ from shutil import copyfile
 # Pi = ["""ge[(1)Pr[{c:Constant=zero}]+(-0.3)Pr[imp({zero=zero}{zero@even})],0.66]"""]
 
 # #EXAMPLE 1 (Example 4.4.1 of [1]) - UNSAT
-# Psi = ["""'Forall[{c:Constant@even}]"""]
-# Sigma = ["""'not['Forall[{s(c:Constant)@odd}]]"""]
-# Pi = ["""le[(1)Pr[{c:Constant=zero}]+(-0.6666)Pr[{c:Constant@even}],0]"""]
+Psi = ["""'Forall[{c:Constant@even}]"""]
+Sigma = ["""'not['Forall[{s(c:Constant)@odd}]]"""]
+Pi = ["""le[(1)Pr[{c:Constant=zero}]+(-0.6666)Pr[{c:Constant@even}],0]"""]
 
 # EXAMPLE 2 (Example 4.4.1 of [1]) - UNSAT
 # Psi = ["""'Forall[{c:Constant@even}]"""]
@@ -39,24 +39,24 @@ from shutil import copyfile
 
 
 # DOLEV - YAO symmetric
-filenamemaude = "workingdolev.maude"
-rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']], ['equat(proj1(pair(X,Y)), X)', ['X', 'Y']], ['equat(proj2(pair(X,Y)), Y)', ['X', 'Y']]]
-signature = [[1, 'proj1'],[1, 'proj2'], [2, 'enc'],[2, 'dec']]
-domains = ['symkey', 'plain','conc', 'cipher']
-domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
-				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
-				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
-				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]],
-				  [[['X','conc',1,['X']]],[['proj1(X)', 'plain', 1, ['X']]]],
-				  [[['X','conc',1,['X']]],[['proj2(X)', 'plain', 1, ['X']]]]]
+# filenamemaude = "workingdolev.maude"
+# rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']], ['equat(proj1(pair(X,Y)), X)', ['X', 'Y']], ['equat(proj2(pair(X,Y)), Y)', ['X', 'Y']]]
+# signature = [[1, 'proj1'],[1, 'proj2'], [2, 'enc'],[2, 'dec']]
+# domains = ['symkey', 'plain','conc', 'cipher']
+# domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
+# 				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
+# 				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
+# 				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]],
+# 				  [[['X','conc',1,['X']]],[['proj1(X)', 'plain', 1, ['X']]]],
+# 				  [[['X','conc',1,['X']]],[['proj2(X)', 'plain', 1, ['X']]]]]
 
 # EXAMPLE 3 (Example 4.2.2 of [1]) - UNSAT
-Psi = ["""'Forall[{k1:Constant@symkey}]"""]
-Sigma = []
-Pi = ["""eq[(1)Pr[{k:Constant=k1:Constant}]+(-0.4)Pr[{k1:Constant@symkey}],0]""", """sl[(1)Pr[{dec(enc(m:Constant,k:Constant),k1:Constant)=m:Constant}],0.4]"""]
+# Psi = ["""'Forall[{k1:Constant@symkey}]"""]
+# Sigma = []
+# Pi = ["""eq[(1)Pr[{k:Constant=k1:Constant}]+(-0.4)Pr[{k1:Constant@symkey}],0]""", """sl[(1)Pr[{dec(enc(m:Constant,k:Constant),k1:Constant)=m:Constant}],0.4]"""]
 # #
 
-# # # EXAMPLE 4 (Example 2.5.2 of [1]) -  UNSAT
+# # # EXAMPLE 4 (Example 4.2.2 of [1]) -  UNSAT
 # Psi = ["""'Forall[and({k:Constant@symkey},{m:Constant@plain})]"""]
 # Sigma = ["""'not['Forall[imp(not({dec(enc(m:Constant,k:Constant),k1:Constant)@plain}), not({k:Constant=k1:Constant}) )]]"""]
 # Pi = []
