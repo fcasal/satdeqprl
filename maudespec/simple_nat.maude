@@ -28,6 +28,3 @@ fmod NEW-TERM is protecting META-LEVEL .
   eq terms(Q:Qid[TL:TermList]) = terms(TL:TermList) .
   eq terms((T:Term, TL:TermList)) = terms(T:Term),sepa, terms(TL:TermList) .
 endfm
-
-
-red terms((equat(+(s(zero) , zero) , +(zero,s(zero))),equat(+(s(c:Constant) , c:Constant) , +(c:Constant,s(c:Constant))),equat(+(zero, zero) , zero),s(zero),zero,c:Constant,equat(+(zero, c:Constant) , c:Constant),equat(+(s(c:Constant) , zero) , +(c:Constant,s(zero))),equat(s(s(zero)) , zero),s(c:Constant),equat(s(s(c:Constant)) , c:Constant),equat(+(s(zero) , c:Constant) , +(zero,s(c:Constant))))) .

@@ -25,7 +25,6 @@ def instantiate(rewritesystem, subterms):
 		variables = rule[1]
 		numvars = len(variables)
 		for element in product(subterms, repeat=numvars):
-			# print thisrule
 			rep = {}
 			for idx, val in enumerate(element): #build dictionary
 				rep[variables[idx]] = val
@@ -45,7 +44,6 @@ def instatiatedomainterms(domainrestric,  subterms):
 			l.append(term)
 		else:
 			for element in product(subterms, repeat=numvars):
-			# print thisrule
 				rep = {}
 				for idx, val in enumerate(element): #build dictionary
 					rep[variables[idx]] = val
@@ -117,8 +115,8 @@ def conju(a, b):
 def conjulist( l):
 	if l:
 		return "(and {})".format(" ".join(l))
-	else: 
-		return " true " 
+	else:
+		return " true "
 
 # disjunction smt lib
 def disjulist(l):
@@ -149,8 +147,8 @@ def transistring(a,b,c, idx):
 
 def transitriangular(relterms, enumrelterms, numbercopies):
 	lenlen = len(relterms)
-	transi = [ transistring(enumrelterms[elem], enumrelterms[elem2], enumrelterms[relterms[idxelem3]], str(index)) for index in range(numbercopies)  
-	 for idx, elem in enumerate(relterms) for idxelem3 in range(int(idx),lenlen) for elem2 in relterms ] 
+	transi = [ transistring(enumrelterms[elem], enumrelterms[elem2], enumrelterms[relterms[idxelem3]], str(index)) for index in range(numbercopies)
+	 for idx, elem in enumerate(relterms) for idxelem3 in range(int(idx),lenlen) for elem2 in relterms ]
 	return transi
 
 # congruence
@@ -198,7 +196,7 @@ def instatiatedomainrestr(domainrestric,  relterms):
 		for element in product(relterms, repeat=numvars):
 			l = copy.deepcopy(init)
 			for lados in l:
-				for cond in lados:	
+				for cond in lados:
 					rep = {}
 					for idx, val in enumerate(element): #build dictionary
 						rep[variables[idx]] = val
@@ -230,15 +228,3 @@ def definevariables(relterms, enumrelterms, domains, numbercopies):
 		l.append(propdom(element[0],element[1],enumrelterms))
 	p = ["".join(map(lambda x: "(define {}::bool)\n".format(x+"$"+str(idx)), l)) for idx in range(numbercopies)]
 	return "".join(p)
-
-
-
-
-
-
-
-
-
-
-
-

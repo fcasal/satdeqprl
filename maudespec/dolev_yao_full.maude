@@ -1,0 +1,51 @@
+fmod SIMPLE is
+  sort Constant .
+  op enc : Constant Constant -> Constant .
+  op aenc : Constant Constant -> Constant .
+  op dec : Constant Constant -> Constant .
+  op adec : Constant Constant -> Constant .
+  op pair : Constant Constant -> Constant .
+  op proj1 : Constant -> Constant .
+  op proj2 : Constant -> Constant .
+  op pub : Constant -> Constant .
+  op prv : Constant -> Constant .
+  vars X Y K : Constant .
+  eq dec(enc(X,K), K) = X .
+  eq adec(aenc(X,pub(K)), priv(K)) = X .
+  eq proj1(pair(X,Y)) = X .
+  eq proj2(pair(X,Y)) = Y .
+endfm
+
+
+fmod NEW-TERM is protecting META-LEVEL .
+  op terms : TermList -> TermList .
+  eq terms(empty) = empty .
+  eq terms(C:Constant) = C:Constant .
+  eq terms(D:Variable) = empty .
+  op enc : Term Term -> Term .
+  op dec  : Term Term -> Term .
+  op aenc : Term Term -> Term .
+  op adec  : Term Term -> Term .
+  op pair : Term Term -> Term .
+  op proj1 : Term -> Term .
+  op proj2 : Term -> Term .
+  op pub : Term -> Term .
+  op prv : Term -> Term .
+  vars X Y K : Constant .
+  op in : Term Term -> Term
+  op equat : Term Term -> Term .
+  op sepa : -> Qid .
+  eq terms(enc(TL:Term, T:Term)) = enc(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(dec(TL:Term, T:Term)) = dec(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(aenc(TL:Term, T:Term)) = aenc(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(adec(TL:Term, T:Term)) = adec(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(pair(TL:Term, T:Term)) = pair(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(proj1(TL:Term)) = proj1(TL:Term),sepa, terms((TL:Term)) .
+  eq terms(proj2(TL:Term)) = proj2(TL:Term),sepa, terms((TL:Term)) .
+  eq terms(pub(TL:Term)) = pub(TL:Term),sepa, terms((TL:Term)) .
+  eq terms(prv(TL:Term)) = prv(TL:Term),sepa, terms((TL:Term)) .
+  eq terms(equat(TL:Term , T:Term)) = terms((TL:Term, T:Term)) .
+  eq terms(in(TL:Term , T:Term)) = terms((TL:Term, T:Term)) .
+  eq terms(Q:Qid[TL:TermList]) = terms(TL:TermList) .
+  eq terms((T:Term, TL:TermList)) = terms(T:Term),sepa, terms(TL:TermList) .
+endfm
