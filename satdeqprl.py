@@ -53,8 +53,6 @@ def parsepsisubformulas(formulist, string, num):
 		sub = sub.replace("and(", "(and ").replace("or(", "(or ").replace("not(", "(not ").replace("imp(", "(=> ").replace("equiv(", "(<=> ")
 		parsed.append(parse)
 		psistar.append(sub)
-	# print subterms
-	# print psistar
 	return subterms, psistar, parsed
 
 def parsePI(formulist):
@@ -118,7 +116,6 @@ def probabilistic( probabilisticformulas, freshlist ):
 		yicescode += "\n(define "+ p[i] +"::real)\n(assert (and (<= "+p[i]+" 1) (>= "+ p[i]+" 0)))"
 	yicescode += "\n(define "+ p[n] +"::real)\n(assert (and (<= "+p[n]+" 1) (>= "+p[n]+" 0)))"
 	for form in probabilisticformulas[0]:
-		# print(form)
 		typ = form[0]
 		indepterm = form[-1]
 		constraint = "(+ "
@@ -196,7 +193,6 @@ def newasserts(probabilisticformulas, freshlist, ind):
 	order = 0
 	for i in probabilisticformulas:
 		for term in i[1]:
-			# print(term)
 			form = "(define {}::bool)\n(assert (<=> {} {}))\n".format(freshlist[ind][order],freshlist[ind][order], term[1].replace(",",""))
 			term[1] = freshlist[ind][order]
 			order +=1
@@ -242,7 +238,6 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 
 	subtermsrules = runMaude("answer.maude")
 	allsubterms =  list(set(subtermsformula + subtermsrules))
-	# print(allsubterms)
 
 	with open(filenamemaude, "r") as myfile:
 	    working = myfile.read()
@@ -259,7 +254,7 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 	# relevant terms
 	relterms = list(set(allsubterms + allnormforms))
 	# enumeration of terms in relterms
-	print(len(relterms))
+	# print(len(relterms))
 	enumrelterms = dict(zip(relterms, range(0,len(relterms))))
 	# maps relterms to their normal form
 	atlas = dict(zip(allsubterms + allnormforms, allnormforms + allnormforms))
@@ -282,46 +277,57 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 
 	pairsasserts = [newasserts(pistar[index], freshlist, index) for index in range(numbercopies)]
 	asserts = "".join([i[0] for i in pairsasserts])
-	with open("gotoyicesmaude.txt","w") as f:
-		print("im gonna write to file now")
-		print("definevars")
+	with open("gotoyicesmaude.txt", "w") as f:
+		print("writing to file now...")
+		# print("definevars")
 		f.write( definevariables(relterms, enumrelterms, domains, numbercopies))
 
-		print("reflex")
+		# print("reflex")
 		ref = reflex(relterms, atlas, enumrelterms, numbercopies)
 		f.write( assertion(conjulist(ref)))
-		print(len(ref))
+		# print(len(ref))
+		print("{} reflexivity asserts done.".format(len(ref)))
 
-		print("symm")
+		# print("symm")
 		sy = symm(relterms, enumrelterms, numbercopies)
 		f.write( assertion(conjulist(sy)) )
-		print(len(sy))
+		# print(len(sy))
+		print("{} symmetry asserts done.".format(len(sy)))
 
-		print("transi")
+
+		# print("transi")
 		transilist = transitriangular( relterms, enumrelterms, numbercopies)
-		print(len(transilist))
+		# print(len(transilist))
 		chunky = chunks(transilist, min(len(transilist)//100,len(transilist)))
 		# f.write("".join(map(lambda x: assertion(conjulist(x)), chunky)))
 		for chun in chunky:
 			f.write( assertion(conjulist(chun)) )
+		print("{} transitivity asserts done.".format(len(transilist)))
 
-		print("congru")
+
+		# print("congru")
 		congr = congru( relterms, enumrelterms, atlas, signature, numbercopies)
 		f.write( assertion(conjulist(congr)) )
-		print(len(congr))
+		# print(len(congr))
+		print("{} congruence asserts done.".format(len(congr)))
 
-		print("member")
+
+		# print("member")
 		mem = member(relterms, enumrelterms, domains, numbercopies)
 		f.write( assertion(conjulist(mem)) )
-		print(len(mem))
+		# print(len(mem))
+		print("{} membership asserts done.".format(len(mem)))
 
-		print("dommember")
+
+		# print("dommember")
 		dommem = dommember(domrestricimpl, subtermsformula, enumrelterms,numbercopies)
 		f.write( assertion(conjulist(dommem)) )
-		print(len(dommem))
+		# print(len(dommem))
+		print("{} domain membership asserts done.".format(len(dommem)))
 
-		print("psistar")
-		print(len(psistar))
+
+		# print("psistar")
+		# print(len(psistar))
 
 		f.write("".join(map(lambda x: assertion(conjulist(x)), psilist )))
 
@@ -334,7 +340,8 @@ def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopie
 		f.write(asserts)
 		f.write( probabilistic(probabilisticformulas, freshlist))
 		f.write( "\n(check)\n(show-model)")
-	print("***********\nFIRST STEP\n***********\n")
+	print("\n")
+	# print("***********\nFIRST STEP\n***********\n")
 	p = Popen([pathtoyices,'prob.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 	output, err = p.communicate()
 	output = output.decode()
@@ -351,7 +358,7 @@ def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopie
 		print(err)
 		exit("ERRO")
 
-	print("***********\nSECOND STEP\n***********\n")
+	# print("***********\nSECOND STEP\n***********\n")
 	flatsigmastar = [item for i in sigmastar for item in i]
 	for form in flatsigmastar:
 		copyfile("gotoyicesmaude.txt", "formgenp.txt")
@@ -363,18 +370,18 @@ def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopie
 		output = output.decode()
 		err = err.decode()
 		if "unsat" in output:
-			print(output)
-			print(err)
+			# print(output)
+			# print(err)
 			print("UNSATISFIABLE")
 			return 0
 		elif "interrupted" in output:
-			print(output)
-			print(err)
+			# print(output)
+			# print(err)
 			print("TIMEOUT")
 			return 0
 		elif "sat" not in output:
-			print(output)
-			print(err)
+			# print(output)
+			# print(err)
 			exit("ERRO")
 	print("SATISFIABLE")
 	return 1
