@@ -1,6 +1,6 @@
 # DOLEV - YAO symmetric + asymmmetric
 
-filenamemaude = "dolev_yao_full.maude"
+filenamemaude = "./maudespec/dolev_yao_full.maude"
 
 rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X', 'K']],
                  ['equat(adec(aenc(X,pub(K)),prv(K)), X)', ['X', 'K']],

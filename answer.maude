@@ -1,12 +1,14 @@
 fmod SIMPLE is
   sort Constant .
-  op zero : -> Constant .
-  op s : Constant -> Constant .
-  op + : Constant Constant -> Constant .
-  vars N M : Constant .
-  eq +(zero, N) = N .
-  eq +(s(N) , M) = +(N,s(M)) .
-  eq s(s(N)) = N .
+  op enc : Constant Constant -> Constant .
+  op dec : Constant Constant -> Constant .
+  op pair : Constant Constant -> Constant .
+  op proj1 : Constant -> Constant .
+  op proj2 : Constant -> Constant .
+  vars X Y K : Constant .
+  eq dec(enc(X,K), K) = X .
+  eq proj1(pair(X,Y)) = X .
+  eq proj2(pair(X,Y)) = Y .
 endfm
 
 
@@ -15,14 +17,20 @@ fmod NEW-TERM is protecting META-LEVEL .
   eq terms(empty) = empty .
   eq terms(C:Constant) = C:Constant .
   eq terms(D:Variable) = empty .
-  op + : Term Term -> Term .
-  op s : Term -> Term .
-  op in : Term Term -> Term .
+  op enc : Term Term -> Term .
+  op dec  : Term Term -> Term .
+  op pair : Term Term -> Term .
+  op proj1 : Term -> Term .
+  op proj2 : Term -> Term .
+  vars X Y K : Constant .
+  op in : Term Term -> Term 
   op equat : Term Term -> Term .
   op sepa : -> Qid .
-  op zero : -> Constant .
-  eq terms(s(TL:Term)) = s(TL:Term),sepa, terms(TL:Term) .
-  eq terms(+(TL:Term, T:Term)) = +(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(enc(TL:Term, T:Term)) = enc(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(dec(TL:Term, T:Term)) = dec(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(pair(TL:Term, T:Term)) = pair(TL:Term, T:Term),sepa, terms((TL:Term, T:Term)) .
+  eq terms(proj1(TL:Term)) = proj1(TL:Term),sepa, terms((TL:Term)) .
+  eq terms(proj2(TL:Term)) = proj2(TL:Term),sepa, terms((TL:Term)) .
   eq terms(equat(TL:Term , T:Term)) = terms((TL:Term, T:Term)) .
   eq terms(in(TL:Term , T:Term)) = terms((TL:Term, T:Term)) .
   eq terms(Q:Qid[TL:TermList]) = terms(TL:TermList) .
@@ -30,4 +38,22 @@ fmod NEW-TERM is protecting META-LEVEL .
 endfm
 
 
-red terms((equat(+(s(zero) , zero) , +(zero,s(zero))),equat(+(s(c:Constant) , c:Constant) , +(c:Constant,s(c:Constant))),equat(+(zero, zero) , zero),s(zero),zero,c:Constant,equat(+(zero, c:Constant) , c:Constant),equat(+(s(c:Constant) , zero) , +(c:Constant,s(zero))),equat(s(s(zero)) , zero),s(c:Constant),equat(s(s(c:Constant)) , c:Constant),equat(+(s(zero) , c:Constant) , +(zero,s(c:Constant))))) .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+red terms((dec(k1:Constant,k1:Constant),equat(proj2(pair(dec(enc(m:Constant,k:Constant),k1:Constant),m:Constant)), m:Constant),equat(proj2(pair(k1:Constant,m:Constant)), m:Constant),dec(m:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),enc(k:Constant,k1:Constant),equat(proj2(pair(dec(enc(m:Constant,k:Constant),k1:Constant),dec(enc(m:Constant,k:Constant),k1:Constant))), dec(enc(m:Constant,k:Constant),k1:Constant)),k:Constant,equat(proj1(pair(k:Constant,dec(enc(m:Constant,k:Constant),k1:Constant))), k:Constant),pair(dec(enc(m:Constant,k:Constant),k1:Constant),dec(enc(m:Constant,k:Constant),k1:Constant)),pair(k1:Constant,k1:Constant),dec(k:Constant,m:Constant),pair(k1:Constant,k:Constant),pair(dec(enc(m:Constant,k:Constant),k1:Constant),k1:Constant),equat(proj2(pair(k:Constant,k1:Constant)), k1:Constant),enc(m:Constant,k1:Constant),equat(proj2(pair(k:Constant,k:Constant)), k:Constant),equat(proj1(pair(k1:Constant,m:Constant)), k1:Constant),equat(proj1(pair(k1:Constant,dec(enc(m:Constant,k:Constant),k1:Constant))), k1:Constant),k1:Constant,proj2(m:Constant),equat(proj1(pair(dec(enc(m:Constant,k:Constant),k1:Constant),dec(enc(m:Constant,k:Constant),k1:Constant))), dec(enc(m:Constant,k:Constant),k1:Constant)),proj1(k:Constant),equat(dec(enc(k:Constant,m:Constant),m:Constant), k:Constant),equat(dec(enc(m:Constant,k:Constant),k:Constant), m:Constant),dec(k1:Constant,k:Constant),enc(m:Constant,k:Constant),equat(dec(enc(dec(enc(m:Constant,k:Constant),k1:Constant),k1:Constant),k1:Constant), dec(enc(m:Constant,k:Constant),k1:Constant)),pair(m:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),enc(dec(enc(m:Constant,k:Constant),k1:Constant),k:Constant),proj2(dec(enc(m:Constant,k:Constant),k1:Constant)),dec(k1:Constant,m:Constant),equat(proj2(pair(m:Constant,k:Constant)), k:Constant),pair(dec(enc(m:Constant,k:Constant),k1:Constant),m:Constant),equat(proj1(pair(dec(enc(m:Constant,k:Constant),k1:Constant),m:Constant)), dec(enc(m:Constant,k:Constant),k1:Constant)),equat(proj2(pair(dec(enc(m:Constant,k:Constant),k1:Constant),k:Constant)), k:Constant),equat(dec(enc(m:Constant,m:Constant),m:Constant), m:Constant),dec(dec(enc(m:Constant,k:Constant),k1:Constant),k:Constant),enc(k1:Constant,k:Constant),enc(dec(enc(m:Constant,k:Constant),k1:Constant),k1:Constant),equat(proj2(pair(m:Constant,k1:Constant)), k1:Constant),pair(m:Constant,k1:Constant),equat(proj2(pair(k1:Constant,k1:Constant)), k1:Constant),equat(dec(enc(k1:Constant,k:Constant),k:Constant), k1:Constant),equat(proj1(pair(dec(enc(m:Constant,k:Constant),k1:Constant),k1:Constant)), dec(enc(m:Constant,k:Constant),k1:Constant)),dec(dec(enc(m:Constant,k:Constant),k1:Constant),m:Constant),equat(proj1(pair(k1:Constant,k1:Constant)), k1:Constant),enc(dec(enc(m:Constant,k:Constant),k1:Constant),dec(enc(m:Constant,k:Constant),k1:Constant)),equat(dec(enc(k1:Constant,k1:Constant),k1:Constant), k1:Constant),equat(proj2(pair(k1:Constant,k:Constant)), k:Constant),enc(k:Constant,m:Constant),equat(dec(enc(dec(enc(m:Constant,k:Constant),k1:Constant),dec(enc(m:Constant,k:Constant),k1:Constant)),dec(enc(m:Constant,k:Constant),k1:Constant)), dec(enc(m:Constant,k:Constant),k1:Constant)),proj1(m:Constant),dec(enc(m:Constant,k:Constant),k1:Constant),equat(proj2(pair(m:Constant,dec(enc(m:Constant,k:Constant),k1:Constant))), dec(enc(m:Constant,k:Constant),k1:Constant)),pair(dec(enc(m:Constant,k:Constant),k1:Constant),k:Constant),dec(dec(enc(m:Constant,k:Constant),k1:Constant),k1:Constant),equat(proj2(pair(dec(enc(m:Constant,k:Constant),k1:Constant),k1:Constant)), k1:Constant),dec(dec(enc(m:Constant,k:Constant),k1:Constant),dec(enc(m:Constant,k:Constant),k1:Constant)),enc(dec(enc(m:Constant,k:Constant),k1:Constant),m:Constant),equat(dec(enc(k1:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),dec(enc(m:Constant,k:Constant),k1:Constant)), k1:Constant),equat(proj1(pair(m:Constant,k:Constant)), m:Constant),enc(k1:Constant,k1:Constant),pair(k:Constant,m:Constant),equat(proj1(pair(m:Constant,k1:Constant)), m:Constant),equat(proj1(pair(k1:Constant,k:Constant)), k1:Constant),enc(k:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),pair(k1:Constant,m:Constant),proj1(dec(enc(m:Constant,k:Constant),k1:Constant)),pair(m:Constant,m:Constant),equat(proj1(pair(dec(enc(m:Constant,k:Constant),k1:Constant),k:Constant)), dec(enc(m:Constant,k:Constant),k1:Constant)),enc(k1:Constant,m:Constant),equat(dec(enc(dec(enc(m:Constant,k:Constant),k1:Constant),k:Constant),k:Constant), dec(enc(m:Constant,k:Constant),k1:Constant)),pair(k:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),equat(proj2(pair(m:Constant,m:Constant)), m:Constant),equat(dec(enc(dec(enc(m:Constant,k:Constant),k1:Constant),m:Constant),m:Constant), dec(enc(m:Constant,k:Constant),k1:Constant)),equat(dec(enc(k1:Constant,m:Constant),m:Constant), k1:Constant),equat(proj1(pair(m:Constant,m:Constant)), m:Constant),equat(proj1(pair(k:Constant,m:Constant)), k:Constant),dec(k:Constant,k1:Constant),equat(dec(enc(k:Constant,k:Constant),k:Constant), k:Constant),equat(proj1(pair(m:Constant,dec(enc(m:Constant,k:Constant),k1:Constant))), m:Constant),equat(dec(enc(k:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),dec(enc(m:Constant,k:Constant),k1:Constant)), k:Constant),equat(proj1(pair(k:Constant,k1:Constant)), k:Constant),proj2(k:Constant),proj1(k1:Constant),equat(dec(enc(k:Constant,k1:Constant),k1:Constant), k:Constant),pair(k:Constant,k1:Constant),dec(m:Constant,k:Constant),dec(m:Constant,k1:Constant),equat(dec(enc(m:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),dec(enc(m:Constant,k:Constant),k1:Constant)), m:Constant),enc(k1:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),equat(dec(enc(m:Constant,k1:Constant),k1:Constant), m:Constant),m:Constant,enc(m:Constant,m:Constant),equat(proj1(pair(k:Constant,k:Constant)), k:Constant),pair(k1:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),equat(proj2(pair(k1:Constant,dec(enc(m:Constant,k:Constant),k1:Constant))), dec(enc(m:Constant,k:Constant),k1:Constant)),dec(k:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),pair(k:Constant,k:Constant),equat(proj2(pair(k:Constant,m:Constant)), m:Constant),enc(k:Constant,k:Constant),enc(m:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),proj2(k1:Constant),dec(k:Constant,k:Constant),equat(proj2(pair(k:Constant,dec(enc(m:Constant,k:Constant),k1:Constant))), dec(enc(m:Constant,k:Constant),k1:Constant)),dec(k1:Constant,dec(enc(m:Constant,k:Constant),k1:Constant)),pair(m:Constant,k:Constant),dec(m:Constant,m:Constant))) .

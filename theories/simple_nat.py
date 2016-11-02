@@ -1,6 +1,6 @@
 ## SIMPLE-NAT
 
-filenamemaude = "simple_nat.maude"
+filenamemaude = "./maudespec/simple_nat.maude"
 
 rewritesystem = [['equat(+(zero, N) , N)', ['N']],
  				['equat(+(s(N) , M) , +(N,s(M)))', ['N', 'M']],

@@ -1,7 +1,7 @@
 # DOLEV - YAO symmetric + asymmmetric
 # tiny version -- has no projections or principals
 
-filenamemaude = "dolev_yao_full.maude"
+filenamemaude = "./maudespec/dolev_yao_full.maude"
 
 rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']],
                  ['equat(adec(aenc(X,pub(K)),prv(K)), X)', ['X','K']]]

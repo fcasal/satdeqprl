@@ -1,130 +1,20 @@
-
 from subprocess import Popen, PIPE
 from itertools import product
 import re, copy, sys
-from  propositionalmodule import *
 from shutil import copyfile
 
-# Bibliography
-# [1] A. Mordido. A probabilistic logic over equations and domain restrictions. PhD thesis, IST, Universidade de Lisboa.
+from  propositionalmodule import *
 
-# # SIMPLE-NAT
-filenamemaude = "working.maude"
-rewritesystem = [['equat(+(zero, N) , N)', ['N']], ['equat(+(s(N) , M) , +(N,s(M)))', ['N', 'M']], ['equat(s(s(N)) , N)', ['N']]]
-signature = [[0, 'zero'], [1, 's'], [2, '+']]
-domains = ['even', 'odd']
-domrestricimpl = [[[],[['zero', 'even', 1, []]]],[[['N','even',1,'N']],[['s(N)','odd',1,'N']]],
-					[[['N','odd',1,'N']],[['s(N)','even',1,'N']]],
-					[[['N','odd',1,'N']],[['N','even',0,'N']]]]
+from examples.ex4 import *
 
-# #EXAMPLE 0 - UNSAT
-# Psi = ["""'Forall[{c:Constant@even}]""","""'Forall[or({c:Constant=zero} , {d:Constant=s(+(zero,d:Constant))})]"""]
-# Sigma = ["""'not['Forall[{s(c:Constant)@odd}]]"""]
-# Pi = ["""ge[(1)Pr[{c:Constant=zero}]+(-0.3)Pr[imp({zero=zero}{zero@even})],0.66]"""]
-
-# #EXAMPLE 1 (Example 4.4.1 of [1]) - UNSAT
-Psi = ["""'Forall[{c:Constant@even}]"""]
-Sigma = ["""'not['Forall[{s(c:Constant)@odd}]]"""]
-Pi = ["""le[(1)Pr[{c:Constant=zero}]+(-0.6666)Pr[{c:Constant@even}],0]"""]
-
-# EXAMPLE 2 (Example 4.4.1 of [1]) - UNSAT
-# Psi = ["""'Forall[{c:Constant@even}]"""]
-# Sigma = []
-# Pi = ["""le[(1)Pr[{c:Constant=zero}]+(-0.6666)Pr[{c:Constant@even}],0]""", """sg[(1)Pr[{c:Constant=zero}],0.6666]"""]
-
-# # EXAMPLE - SAT
-# Psi = ["""'Forall[{c:Constant@even}]"""]
-# Sigma = []
-# Pi = ["""le[(1)Pr[{c:Constant=zero}]+(-0.25)Pr[{c:Constant@even}],0]""", """ge[(1)Pr[{c:Constant=zero}],0.25]"""]
+pathtoyices = '/usr/local/bin/yices'
+pathtomaude = '/bin/maude.darwin64'
 
 
-# DOLEV - YAO symmetric
-# filenamemaude = "workingdolev.maude"
-# rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']], ['equat(proj1(pair(X,Y)), X)', ['X', 'Y']], ['equat(proj2(pair(X,Y)), Y)', ['X', 'Y']]]
-# signature = [[1, 'proj1'],[1, 'proj2'], [2, 'enc'],[2, 'dec']]
-# domains = ['symkey', 'plain','conc', 'cipher']
-# domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
-# 				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
-# 				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
-# 				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]],
-# 				  [[['X','conc',1,['X']]],[['proj1(X)', 'plain', 1, ['X']]]],
-# 				  [[['X','conc',1,['X']]],[['proj2(X)', 'plain', 1, ['X']]]]]
 
-# EXAMPLE 3 (Example 4.2.2 of [1]) - UNSAT
-# Psi = ["""'Forall[{k1:Constant@symkey}]"""]
-# Sigma = []
-# Pi = ["""eq[(1)Pr[{k:Constant=k1:Constant}]+(-0.4)Pr[{k1:Constant@symkey}],0]""", """sl[(1)Pr[{dec(enc(m:Constant,k:Constant),k1:Constant)=m:Constant}],0.4]"""]
-# #
-
-# # # EXAMPLE 4 (Example 4.2.2 of [1]) -  UNSAT
-# Psi = ["""'Forall[and({k:Constant@symkey},{m:Constant@plain})]"""]
-# Sigma = ["""'not['Forall[imp(not({dec(enc(m:Constant,k:Constant),k1:Constant)@plain}), not({k:Constant=k1:Constant}) )]]"""]
-# Pi = []
-
-# EXAMPLE 5 (Example 2.5.2 of [1]) -  SAT
-# Psi = ["""'Forall[and({m1:Constant=pair(a:Constant,n:Constant)},{m2:Constant=enc(n:Constant,k1:Constant)})]"""]
-# Sigma = ["""'not['Forall[{dec(m2:Constant,k:Constant)=proj2(m1:Constant)}]]"""]
-# Pi = []
-
-# EXAMPLE 6  (Example 2.5.2 of [1]) -  UNSAT !!! 571seconds user 19:27 total // now   203.80s user   4:17.77 total
-# print("EXAMPLE 6 - UNSAT")
-# Psi = ["""'Forall[and({m1:Constant=pair(a:Constant,n:Constant)},{m2:Constant=enc(n:Constant,k1:Constant)})]"""]
-# Sigma = ["""'not['Forall[imp({k:Constant=k1:Constant},{dec(m2:Constant,k:Constant)=proj2(m1:Constant)})]]"""]
-# Pi = []
-
-# # # DOLEV - YAO symmetric + asym
-# filenamemaude = "workingdolevasym.maude"
-# rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']],['equat(adec(aenc(X,pub(K)),prv(K)), X)', ['X','K']], ['equat(proj1(pair(X,Y)), X)', ['X', 'Y']], ['equat(proj2(pair(X,Y)), Y)', ['X', 'Y']]]
-# signature = [[1, 'proj1'],[1, 'proj2'],[1, 'pub'],[1, 'prv'], [2, 'enc'],[2, 'dec'],[2, 'aenc'],[2, 'adec']]
-# domains = ['symkey', 'plain','conc', 'cipher', 'pubkey', 'prvkey', 'principals', 'conf']
-# domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
-# 				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
-# 				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
-# 				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]],
-# 				  [[['X','conc',1,['X']]],[['proj1(X)', 'plain', 1, ['X']]]],
-# 				  [[['X','conc',1,['X']]],[['proj2(X)', 'plain', 1, ['X']]]],
-# 				  [[['K','principals',1,['K']]],[['pub(K)', 'pubkey', 1, ['K']]]],
-# 				  [[['K','principals',1,['K']]],[['prv(K)', 'prvkey', 1, ['K']]]],
-# 				  [[['K','pubkey',1,['K']],['X','plain',1,['X']]],[['aenc(X,K)', 'cipher', 1, ['X','K']]]],
-# 				  [[['K','prvkey',1,['K']],['X','cipher',1,['X']]],[['adec(X,K)', 'plain', 1, ['X','K']]]]]
-
-# print(" # # EXAMPLE 7 - UNSAT")
-# # # 4 disjuncts to test satisfiability - if some of them returns SAT, the problem is satisfiable
-# # # expectations: UNSAT (each of them should return UNSAT)
-# # # 1st disjunct UNSAT !
-# filenamemaude = "workingdolevasym.maude"
-# rewritesystem = [['equat(dec(enc(X,K),K), X)', ['X','K']],['equat(adec(aenc(X,pub(K)),prv(K)), X)', ['X','K']]]
-# signature = [[1, 'pub'],[1, 'prv'], [2, 'enc'],[2, 'dec'],[2, 'aenc'],[2, 'adec']]
-# domains = ['symkey', 'plain', 'cipher', 'pubkey', 'prvkey', 'conf', 'conc']
-# domrestricimpl = [[[['K','symkey',1,['K']],['X','plain',1,['X']]],[['enc(X,K)', 'cipher', 1, ['X','K']]]],
-# 				  [[['K','symkey',1,['K']],['X','cipher',1,['X']]],[['dec(X,K)', 'plain', 1, ['X','K']]]],
-# 				  [[['X','plain',1,['X']],['Y','plain',1,['Y']]],[['pair(X,Y)', 'conc', 1, ['X','Y']]]],
-# 				  [[['X','conc',1,['X']]],[['X', 'plain', 1, ['X']]]]
-# 				  ]
-# Psi = ["""'Forall[{p1:Constant@symkey}]""","""'Forall[{c1:Constant@conf}]""","""'Forall[and({m1:Constant=aenc(pair(n:Constant,c:Constant),pub(b:Constant))},{m2:Constant=enc(n:Constant,p:Constant)})]"""]
-# Sigma = []
-# Pi = ["""sg[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})]+(-1)Pr[{aenc(pair(dec(m2:Constant,p1:Constant),c1:Constant),pub(b:Constant))=m1:Constant}],0]""","""eq[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})],0.25]""","""eq[(1)Pr[{c:Constant=c1:Constant}],0.5]""","""eq[(1)Pr[{p:Constant=p1:Constant}],0.5]"""]
-
-
-# #2nd disjunct UNSAT!
-# Psi = ["""'Forall[{p1:Constant@symkey}]""","""'Forall[{c1:Constant@conf}]""","""'Forall[and({m1:Constant=aenc(pair(n:Constant,c:Constant),pub(b:Constant))},{m2:Constant=enc(n:Constant,p:Constant)})]"""]
-# Sigma = ["""'not['Forall[{p1:Constant@symkey}]]"""]
-# Pi = ["""sg[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})]+(-1)Pr[{aenc(pair(dec(m2:Constant,p1:Constant),c1:Constant),pub(b:Constant))=m1:Constant}],0]""","""eq[(1)Pr[{c:Constant=c1:Constant}],0.5]""", """di[(1)Pr[{p:Constant=p1:Constant}],0.5]"""]
-
-# #3rd disjunct UNSAT
-# Psi = ["""'Forall[{p1:Constant@symkey}]""","""'Forall[{c1:Constant@conf}]""","""'Forall[and({m1:Constant=aenc(pair(n:Constant,c:Constant),pub(b:Constant))},{m2:Constant=enc(n:Constant,p:Constant)})]"""]
-# Sigma = ["""'not['Forall[{c1:Constant@conf}]]"""]
-# Pi = ["""sg[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})]+(-1)Pr[{aenc(pair(dec(m2:Constant,p1:Constant),c1:Constant),pub(b:Constant))=m1:Constant}],0]""","""di[(1)Pr[{c:Constant=c1:Constant}],0.5]""","""eq[(1)Pr[{p:Constant=p1:Constant}],0.5]"""]
-
-
-# #4th disjunct UNSAT
-# Psi = ["""'Forall[{p1:Constant@symkey}]""","""'Forall[{c1:Constant@conf}]""","""'Forall[and({m1:Constant=aenc(pair(n:Constant,c:Constant),pub(b:Constant))},{m2:Constant=enc(n:Constant,p:Constant)})]"""]
-# Sigma = ["""'not['Forall[{c1:Constant@conf}]]""", """'not['Forall[{p1:Constant@symkey}]]"""]
-# Pi = ["""sg[(1)Pr[and({p:Constant=p1:Constant},{c:Constant=c1:Constant})]+(-1)Pr[{aenc(pair(dec(m2:Constant,p1:Constant),c1:Constant),pub(b:Constant))=m1:Constant}],0]""",
-#          """di[(1)Pr[{c:Constant=c1:Constant}],0.5]"""]
 
 def runMaudesubformulas(filename):
-	p = Popen(['./maude.darwin64'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	p = Popen([pathtomaude], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 	output, err = p.communicate("load {} .".format(filename))
 	# print output
 	output = output.replace('\n', ' ').replace('\r', '').replace(' ','').replace('\t','').replace('sepa,sepa','sepa')
@@ -158,7 +48,7 @@ def parsepsisubformulas(formulist, string, num):
 				parse.append(["@", lista, partial])
 				subterms += [lista[0]]
 			else:
-				exit("isdjashdasdjlkasjdlkasjdas")
+				exit("error parsing")
 			partial = find_between(sub, "{", "}")
 		sub = sub.replace("and(", "(and ").replace("or(", "(or ").replace("not(", "(not ").replace("imp(", "(=> ").replace("equiv(", "(<=> ")
 		parsed.append(parse)
@@ -195,7 +85,7 @@ def parsePI(formulist):
 					auxset.append(["@", lista, atoms])
 					subterms += [lista[0]]
 				else:
-					exit("isdjashdasdjlkasjdlkasjdas")
+					exit("error parsing Pi")
 				atoms = find_between(probform, "{", "}")
 			parse.append(auxset)
 			auxset = []
@@ -445,7 +335,7 @@ def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopie
 		f.write( probabilistic(probabilisticformulas, freshlist))
 		f.write( "\n(check)\n(show-model)")
 	print("***********\nFIRST STEP\n***********\n")
-	p = Popen(['/usr/local/bin/yices','prob.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	p = Popen([pathtoyices,'prob.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 	output, err = p.communicate()
 	output = output.decode()
 	err = err.decode()
@@ -468,7 +358,7 @@ def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopie
 		with open("formgenp.txt","a") as f:
 			f.write( assertion(form))
 			f.write("(check)")
-		p = Popen(['/usr/local/bin/yices','formgenp.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+		p = Popen([pathtoyices,'formgenp.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 		output, err = p.communicate()
 		output = output.decode()
 		err = err.decode()

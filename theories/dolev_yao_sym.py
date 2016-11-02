@@ -1,5 +1,6 @@
 # DOLEV - YAO symmetric
-filenamemaude = "dolev_yao_sym.maude"
+
+filenamemaude = "./maudespec/dolev_yao_sym.maude"
 
 rewritesystem = [['equat(dec(enc(X,K),K), X)',  ['X', 'K']],
                  ['equat(proj1(pair(X,Y)), X)', ['X', 'Y']],

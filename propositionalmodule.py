@@ -3,6 +3,10 @@ from itertools import product
 import re
 import copy
 
+pathtomaude = './bin/maude.darwin64'
+
+
+
 def find_between( s, first, last ):
     try:
         start = s.index( first ) + len( first )
@@ -54,7 +58,7 @@ def instatiatedomainterms(domainrestric,  subterms):
 	return l
 
 def runMaude(filename):
-	p = Popen(['./maude.darwin64'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	p = Popen([pathtomaude], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 	output, err = p.communicate("load {} .".format(filename).encode())
 	output = output.decode().replace('\n', ' ').replace('\r', '').replace(' ','').replace('\t','').replace('sepa,sepa','sepa')
 	output = find_between(output, "]:", "Maude>Bye.").split(",sepa,")
@@ -68,7 +72,7 @@ def runMaude(filename):
 
 
 def parseNormMaude(filename):
-	p = Popen(['./maude.darwin64'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	p = Popen([pathtomaude], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 	output, err = p.communicate("load {} .".format(filename).encode())
 	output = find_between(output.decode(),"Maude> ==========================================" ,"Maude> Bye.")
 	output = output.split("==========================================")
