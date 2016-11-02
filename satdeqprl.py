@@ -5,7 +5,7 @@ from shutil import copyfile
 
 from  propositionalmodule import *
 
-from examples.ex4 import *
+from examples.ex1 import *
 
 pathtoyices = '/usr/local/bin/yices'
 pathtomaude = '/bin/maude.darwin64'
