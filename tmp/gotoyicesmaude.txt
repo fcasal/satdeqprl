@@ -2627,3 +2627,5 @@
 (assert (and p15@even$0))
 (assert (and p15@even$1))
 (assert (and p15@even$2))
+(assert (not p16@odd$0))
+(check)

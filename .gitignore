@@ -1,3 +1,9 @@
+# ignore tmp files (usually very large)
+/tmp/*.*
+
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

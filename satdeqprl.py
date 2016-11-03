@@ -10,8 +10,10 @@ from examples.ex1 import *
 pathtoyices = '/usr/local/bin/yices'
 pathtomaude = '/bin/maude.darwin64'
 
-
-
+yicesmaudefile = './tmp/gotoyicesmaude.txt'
+subtermsfile = './tmp/answer.maude'
+normalizefile = './tmp/tonormalize.maude'
+probfile = './tmp/prob.txt'
 
 def runMaudesubformulas(filename):
 	p = Popen([pathtomaude], stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -147,7 +149,7 @@ def probabilistic( probabilisticformulas, freshlist ):
 
 			expr2 = "(+ "+ a[i][j] +" "+ p[j] +" -1)"
 			yicescode  += "\n(assert (>= " + expr1 + " "+ expr2 +") )"
-			yicescode += "\n(assert (<= " + expr1 + " "+ p[j] +") )"
+			yicescode  += "\n(assert (<= " + expr1 + " "+ p[j] +") )"
 
 		yicescode += "\n(assert (= (+ "+ expr +" ) "+ kappa[i]+ " ))"
 
@@ -211,7 +213,7 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 
 	with open(filenamemaude, "r") as myfile:
 	    working = myfile.read()
-	    with open("answer.maude", "w") as f:
+	    with open(subtermsfile, "w") as f:
 	    	f.write(working)
 	    	f.write(instruction)
 	subtermsformulapsi , psistar , parsepsi = parsepsisubformulas(Psi, "'Forall[", -1)
@@ -232,22 +234,22 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 
 	with open(filenamemaude, "r") as myfile:
 	    working = myfile.read()
-	    with open("answer.maude", "w") as f:
+	    with open(subtermsfile, "w") as f:
 	    	f.write(working)
 	    	f.write(instruction)
 
-	subtermsrules = runMaude("answer.maude")
+	subtermsrules = runMaude(subtermsfile)
 	allsubterms =  list(set(subtermsformula + subtermsrules))
 
 	with open(filenamemaude, "r") as myfile:
 	    working = myfile.read()
-	    with open("tonormalize.maude", "w") as f:
+	    with open(normalizefile, "w") as f:
 	    	f.write(working)
 	    	for term in allsubterms:
 	    		f.write("\nred in SIMPLE : " + term + " .")
 
 
-	allnormforms = list(parseNormMaude("tonormalize.maude"))
+	allnormforms = list(parseNormMaude(normalizefile))
 	assert( len(allnormforms) == len(allsubterms))
 	numbercopies = numberoffresh + 1
 
@@ -277,7 +279,7 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 
 	pairsasserts = [newasserts(pistar[index], freshlist, index) for index in range(numbercopies)]
 	asserts = "".join([i[0] for i in pairsasserts])
-	with open("gotoyicesmaude.txt", "w") as f:
+	with open(yicesmaudefile, "w") as f:
 		print("writing to file now...")
 		# print("definevars")
 		f.write( definevariables(relterms, enumrelterms, domains, numbercopies))
@@ -335,14 +337,14 @@ def addmostassertions(Psi, Sigma, Pi, filenamemaude, rewritesystem, signature, d
 
 
 def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopies):
-	copyfile("gotoyicesmaude.txt", "prob.txt")
-	with open("prob.txt","a") as f:
+	copyfile(yicesmaudefile, probfile)
+	with open(probfile, "a") as f:
 		f.write(asserts)
 		f.write( probabilistic(probabilisticformulas, freshlist))
 		f.write( "\n(check)\n(show-model)")
 	print("\n")
 	# print("***********\nFIRST STEP\n***********\n")
-	p = Popen([pathtoyices,'prob.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	p = Popen([pathtoyices, probfile], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 	output, err = p.communicate()
 	output = output.decode()
 	err = err.decode()
@@ -361,11 +363,11 @@ def SATDEQPRLS(sigmastar, freshlist, probabilisticformulas, asserts, numbercopie
 	# print("***********\nSECOND STEP\n***********\n")
 	flatsigmastar = [item for i in sigmastar for item in i]
 	for form in flatsigmastar:
-		copyfile("gotoyicesmaude.txt", "formgenp.txt")
-		with open("formgenp.txt","a") as f:
+		# copyfile(yicesmaudefile, "formgenp.txt")
+		with open( yicesmaudefile, "a") as f:
 			f.write( assertion(form))
 			f.write("(check)")
-		p = Popen([pathtoyices,'formgenp.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+		p = Popen([pathtoyices, yicesmaudefile], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 		output, err = p.communicate()
 		output = output.decode()
 		err = err.decode()
