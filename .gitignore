@@ -1,6 +1,6 @@
 # ignore tmp files (usually very large)
 /tmp/*.*
-
+/neededQ/
 
 
 
